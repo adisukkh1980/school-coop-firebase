@@ -1,39 +1,26 @@
-(function () {
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBnNg5rL-pq6hR85B5wibql2NKt6HabSJA",
+export const firebaseConfig = {
+  apiKey: "AIzaSyBn5rL-p6hR85B5wibq12NKt6HaDJA",
   authDomain: "school-coop-firebase.firebaseapp.com",
   projectId: "school-coop-firebase",
   storageBucket: "school-coop-firebase.firebasestorage.app",
-  messagingSenderId: "635530533389",
-  appId: "1:635530533389:web:5c4076f80b9122dcfd5344"
+  messagingSenderId: "63550533389",
+  appId: "1:63550533389:web:5c4076f80b9122dcfd5344"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 
-  window.isFirebaseConfigured = function isFirebaseConfigured() {
-    return Boolean(
-      window.firebaseConfig &&
-      window.firebaseConfig.apiKey &&
-      !window.firebaseConfig.apiKey.startsWith("YOUR_")
-    );
-  };
-
-  window.initializeFirebaseApp = function initializeFirebaseApp() {
-    if (!window.firebase || !window.isFirebaseConfigured()) {
-      return null;
-    }
-
-    if (!window.firebase.apps.length) {
-      window.firebase.initializeApp(window.firebaseConfig);
-    }
-
-    return window.firebase.app();
-  };
-})();
+export function isFirebaseConfigured() {
+  return Boolean(
+    firebaseConfig &&
+    firebaseConfig.apiKey &&
+    !firebaseConfig.apiKey.startsWith("YOUR_")
+  );
+}
