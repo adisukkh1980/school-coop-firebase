@@ -47,4 +47,4 @@ export function isFirebaseConfigured() {
     !firebaseConfig.apiKey.startsWith("YOUR_")
   );
 }
->>>>>>> d68eeeba65b54631dafa272e1042ef1e5b9d0f24
+
