@@ -1,30 +1,27 @@
-(function () {
-  window.firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-  window.isFirebaseConfigured = function isFirebaseConfigured() {
-    return Boolean(
-      window.firebaseConfig &&
-      window.firebaseConfig.apiKey &&
-      !window.firebaseConfig.apiKey.startsWith("YOUR_")
-    );
-  };
+export const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-  window.initializeFirebaseApp = function initializeFirebaseApp() {
-    if (!window.firebase || !window.isFirebaseConfigured()) {
-      return null;
-    }
+export function isFirebaseConfigured() {
+  return Boolean(
+    firebaseConfig.apiKey &&
+    firebaseConfig.projectId &&
+    !firebaseConfig.apiKey.startsWith("YOUR_") &&
+    !firebaseConfig.projectId.startsWith("YOUR_")
+  );
+}
 
-    if (!window.firebase.apps.length) {
-      window.firebase.initializeApp(window.firebaseConfig);
-    }
-
-    return window.firebase.app();
-  };
-})();
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);

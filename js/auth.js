@@ -1,51 +1,97 @@
-(function () {
-  const demoUsers = [
-    { userId: "UADMIN", name: "ผู้ดูแลระบบ", username: "admin", password: "123456", role: "admin", status: "active" },
-    { userId: "UTEACHER", name: "ครูผู้ดูแล", username: "teacher", password: "123456", role: "teacher", status: "active" },
-    { userId: "UCASHIER", name: "พนักงานขาย", username: "cashier", password: "123456", role: "cashier", status: "active" },
-    { userId: "UMEMBER", name: "สมาชิก", username: "member", password: "123456", role: "member", status: "future" }
-  ];
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { auth, db, isFirebaseConfigured } from "./firebase-config.js";
 
-  function publicUser(user) {
-    return {
-      userId: user.userId,
-      name: user.name,
-      username: user.username,
-      role: user.role,
-      status: user.status
-    };
+const USER_COLLECTION = "users";
+
+function buildUser(authUser, profile) {
+  return {
+    uid: authUser.uid,
+    email: authUser.email,
+    name: profile.name || profile.displayName || authUser.email,
+    role: profile.role || "member",
+    status: profile.status || "inactive"
+  };
+}
+
+function authMessage(error) {
+  const code = error?.code || "";
+
+  if (code === "auth/invalid-email") return "รูปแบบอีเมลไม่ถูกต้อง";
+  if (code === "auth/user-disabled") return "ผู้ใช้งานนี้ถูกปิดใช้งาน";
+  if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
+    return "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+  }
+  if (code === "permission-denied") return "ไม่มีสิทธิ์อ่านข้อมูลผู้ใช้";
+
+  return "เข้าสู่ระบบไม่สำเร็จ กรุณาลองอีกครั้ง";
+}
+
+async function loadUserProfile(authUser, updateLastLogin) {
+  const userRef = doc(db, USER_COLLECTION, authUser.uid);
+  const snapshot = await getDoc(userRef);
+
+  if (!snapshot.exists()) {
+    await signOut(auth);
+    return { success: false, message: "ไม่พบข้อมูลผู้ใช้ในระบบ" };
   }
 
-  window.authService = {
-    async login(username, password) {
-      window.initializeFirebaseApp();
+  const profile = snapshot.data();
+  if (profile.status !== "active") {
+    await signOut(auth);
+    return { success: false, message: "ผู้ใช้งานนี้ถูกปิดใช้งาน" };
+  }
 
-      const user = demoUsers.find((item) => item.username === username && item.password === password);
-      if (!user) {
-        return { success: false, message: "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง" };
-      }
+  if (updateLastLogin) {
+    await updateDoc(userRef, { lastLogin: serverTimestamp() });
+  }
 
-      if (user.status !== "active" && user.role !== "member") {
-        return { success: false, message: "ผู้ใช้งานนี้ยังไม่พร้อมใช้งาน" };
-      }
+  return { success: true, data: buildUser(authUser, profile) };
+}
 
-      const signedInUser = publicUser(user);
-      sessionStorage.setItem("coopCurrentUser", JSON.stringify(signedInUser));
-      return { success: true, data: signedInUser };
-    },
+function waitForAuthUser() {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
 
-    getCurrentUser() {
-      try {
-        const raw = sessionStorage.getItem("coopCurrentUser");
-        return raw ? JSON.parse(raw) : null;
-      } catch (error) {
-        sessionStorage.removeItem("coopCurrentUser");
-        return null;
-      }
-    },
-
-    logout() {
-      sessionStorage.removeItem("coopCurrentUser");
+export const authService = {
+  async login(email, password) {
+    if (!isFirebaseConfigured()) {
+      return { success: false, message: "กรุณาใส่ค่า Firebase Config ก่อนใช้งาน" };
     }
-  };
-})();
+
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      return await loadUserProfile(credential.user, true);
+    } catch (error) {
+      return { success: false, message: authMessage(error) };
+    }
+  },
+
+  async getCurrentUser() {
+    if (!isFirebaseConfigured()) return null;
+
+    const authUser = await waitForAuthUser();
+    if (!authUser) return null;
+
+    const result = await loadUserProfile(authUser, false);
+    return result.success ? result.data : null;
+  },
+
+  async logout() {
+    await signOut(auth);
+  }
+};

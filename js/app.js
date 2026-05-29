@@ -1,3 +1,5 @@
+import { authService } from "./auth.js";
+
 (function () {
   const roleLabels = {
     admin: "ผู้ดูแลระบบ",
@@ -61,9 +63,20 @@
   function init() {
     cacheElements();
     bindEvents();
-    window.initializeFirebaseApp();
 
-    const currentUser = window.authService.getCurrentUser();
+    restoreSession();
+  }
+
+  async function restoreSession() {
+    let currentUser = null;
+
+    try {
+      currentUser = await authService.getCurrentUser();
+    } catch (error) {
+      console.error("restore session error", error);
+      showLoginMessage("เกิดข้อผิดพลาดระหว่างโหลดระบบ กรุณาตรวจสอบ Firebase Config");
+    }
+
     document.getElementById("loading").classList.add("hidden");
 
     if (currentUser) {
@@ -102,18 +115,18 @@
   async function handleLogin(event) {
     event.preventDefault();
 
-    const username = document.getElementById("loginUsername").value.trim();
+    const email = document.getElementById("loginUsername").value.trim();
     const password = document.getElementById("loginPassword").value;
 
-    if (!username || !password) {
-      showLoginMessage("กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน");
+    if (!email || !password) {
+      showLoginMessage("กรุณากรอกอีเมลและรหัสผ่าน");
       return;
     }
 
     setLoginLoading(true);
     showLoginMessage("");
 
-    const result = await window.authService.login(username, password);
+    const result = await authService.login(email, password);
     setLoginLoading(false);
 
     if (!result.success) {
@@ -309,8 +322,13 @@
     els.sidebarBackdrop.classList.add("hidden");
   }
 
-  function logout() {
-    window.authService.logout();
+  async function logout() {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("logout error", error);
+    }
+
     state.user = null;
     state.page = "dashboard";
     els.app.classList.add("hidden");
@@ -318,8 +336,8 @@
     els.page.innerHTML = "";
     els.menu.innerHTML = "";
     closeSidebar();
-    document.getElementById("loginUsername").value = "admin";
-    document.getElementById("loginPassword").value = "123456";
+    document.getElementById("loginUsername").value = "";
+    document.getElementById("loginPassword").value = "";
     showLoginMessage("");
   }
 

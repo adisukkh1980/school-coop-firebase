@@ -29,11 +29,11 @@
       </div>
 
       <form id="loginForm" class="login-form">
-        <label for="loginUsername">ชื่อผู้ใช้งาน</label>
-        <input id="loginUsername" name="username" autocomplete="username" value="admin">
+        <label for="loginUsername">อีเมล</label>
+        <input id="loginUsername" name="email" type="email" autocomplete="email" value="">
 
         <label for="loginPassword">รหัสผ่าน</label>
-        <input id="loginPassword" name="password" type="password" autocomplete="current-password" value="123456">
+        <input id="loginPassword" name="password" type="password" autocomplete="current-password" value="">
 
         <button id="loginBtn" type="submit" class="btn btn--primary btn--full">
           <i class="fa-solid fa-right-to-bracket"></i>
@@ -108,10 +108,29 @@
     </main>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/app.js"></script>
+  <script>
+    window.addEventListener("error", function (event) {
+      if (event.target && event.target.tagName && event.target.tagName !== "SCRIPT") return;
+
+      var loading = document.getElementById("loading");
+      var loginPage = document.getElementById("loginPage");
+      var loginMessage = document.getElementById("loginMessage");
+
+      if (loading) loading.classList.add("hidden");
+      if (loginPage) loginPage.classList.remove("hidden");
+      if (loginMessage) loginMessage.textContent = "เกิดข้อผิดพลาดระหว่างโหลดระบบ กรุณาตรวจสอบ Firebase Config";
+    });
+
+    window.addEventListener("unhandledrejection", function () {
+      var loading = document.getElementById("loading");
+      var loginPage = document.getElementById("loginPage");
+      var loginMessage = document.getElementById("loginMessage");
+
+      if (loading) loading.classList.add("hidden");
+      if (loginPage) loginPage.classList.remove("hidden");
+      if (loginMessage) loginMessage.textContent = "เกิดข้อผิดพลาดระหว่างโหลดระบบ กรุณาตรวจสอบ Firebase Config";
+    });
+  </script>
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>
