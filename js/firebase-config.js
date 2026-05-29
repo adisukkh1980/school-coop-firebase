@@ -4,6 +4,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebas
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 export const firebaseConfig = {
+<<<<<<< HEAD
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
   projectId: "YOUR_PROJECT_ID",
@@ -25,3 +26,25 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+=======
+  apiKey: "AIzaSyBn5rL-p6hR85B5wibq12NKt6HaDJA",
+  authDomain: "school-coop-firebase.firebaseapp.com",
+  projectId: "school-coop-firebase",
+  storageBucket: "school-coop-firebase.firebasestorage.app",
+  messagingSenderId: "63550533389",
+  appId: "1:63550533389:web:5c4076f80b9122dcfd5344"
+};
+
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+
+export function isFirebaseConfigured() {
+  return Boolean(
+    firebaseConfig &&
+    firebaseConfig.apiKey &&
+    !firebaseConfig.apiKey.startsWith("YOUR_")
+  );
+}
+>>>>>>> d68eeeba65b54631dafa272e1042ef1e5b9d0f24

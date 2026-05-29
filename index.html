@@ -108,6 +108,7 @@
     </main>
   </div>
 
+<<<<<<< HEAD
   <script>
     window.addEventListener("error", function (event) {
       if (event.target && event.target.tagName && event.target.tagName !== "SCRIPT") return;
@@ -131,6 +132,12 @@
       if (loginMessage) loginMessage.textContent = "เกิดข้อผิดพลาดระหว่างโหลดระบบ กรุณาตรวจสอบ Firebase Config";
     });
   </script>
+=======
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+>>>>>>> d68eeeba65b54631dafa272e1042ef1e5b9d0f24
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>
